@@ -1,7 +1,10 @@
+import axios from 'axios';
+import { useRouter } from 'next/router';
 import {  useRef, useEffect, useState } from 'react';
 
 function Verify() {
   const inputRefs = useRef([]);
+  const router = useRouter();
   const [errorStat, setErrorStat] = useState({
     hasError: false,
     errorMessage: '',
@@ -62,8 +65,30 @@ function Verify() {
     event.preventDefault();
   };
 
-  const handleSubmit = () => {
-    
+  const handleSubmit = async () => {
+    // Check if any of the input fields are empty
+    const isAnyEmpty = inputRefs.current.some((ref) => !ref.value);
+    if (isAnyEmpty || errorStat.hasError) {
+      setErrorStat({...errorStat, hasError: true, errorMessage: "Please enter numeric value in all the fields"})
+      return;
+    }
+
+    try {
+      const verificationCode = inputRefs.current.map((input) => input.value).join("");
+      const response = await axios.post("/api/verify", { code: verificationCode });
+  
+      if (response.status === 200) {
+        // Redirect to success page
+        router.push("/success");
+      }
+    } 
+    catch (error) {
+      if (error.response.status === 400) {
+        setErrorStat({ ...errorStat, hasError: true, errorMessage:'Verification Error' });
+      } else {
+        setErrorStat({ ...errorStat, hasError: true, errorMessage:'Can not process your code for now' });
+      }
+    }
   }
 
   useEffect(() => {
