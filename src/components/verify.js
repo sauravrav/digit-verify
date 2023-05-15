@@ -57,11 +57,7 @@ function Verify() {
         inputRefs.current[i].classList.remove("border-red-500");
       }
     }
-  
-    // Move focus to first input field
     inputRefs.current[0].focus();
-  
-    // Prevent default paste behavior
     event.preventDefault();
   };
 
